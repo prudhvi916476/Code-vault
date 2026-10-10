@@ -1,69 +1,184 @@
-import Image from "next/image";
+"use client";
+
+import { useState, useEffect, useMemo } from "react";
+import AccessGate from "../components/AccessGate";
+import DashboardHeader from "../components/DashboardHeader";
+import DocumentsSection from "../components/DocumentsSection";
+import SearchFilter from "../components/SearchFilter";
+import ProgramCard from "../components/ProgramCard";
+import CodeViewer from "../components/CodeViewer";
+import { programs, categories, Program } from "../data/programs";
+import { SearchX, Code2, ShieldCheck, Heart } from "lucide-react";
 
 export default function Home() {
+  const [isUnlocked, setIsUnlocked] = useState(false);
+  const [hasMounted, setHasMounted] = useState(false);
+  const [selectedProgram, setSelectedProgram] = useState<Program | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("All Programs");
+
+  useEffect(() => {
+    setHasMounted(true);
+    const unlocked = sessionStorage.getItem("code-vault-unlocked");
+    if (unlocked === "true") {
+      setIsUnlocked(true);
+    }
+  }, []);
+
+  const handleUnlock = () => {
+    setIsUnlocked(true);
+  };
+
+  const handleLock = () => {
+    sessionStorage.removeItem("code-vault-unlocked");
+    setIsUnlocked(false);
+    setSelectedProgram(null);
+  };
+
+  const filteredPrograms = useMemo(() => {
+    return programs.filter((p) => {
+      const matchesCategory =
+        selectedCategory === "All Programs" ||
+        p.categories.includes(selectedCategory);
+
+      if (!matchesCategory) return false;
+
+      if (!searchQuery.trim()) return true;
+
+      const q = searchQuery.toLowerCase().trim();
+      const inTitle = p.title.toLowerCase().includes(q);
+      const inDesc = p.description.toLowerCase().includes(q);
+      const inFilename = p.filename.toLowerCase().includes(q);
+      const inCode = p.code.toLowerCase().includes(q);
+      const inCategories = p.categories.some((cat) =>
+        cat.toLowerCase().includes(q)
+      );
+      const inNumber = `program ${p.id}`.includes(q) || `#${p.id}`.includes(q) || `${p.id}` === q;
+
+      return inTitle || inDesc || inFilename || inCode || inCategories || inNumber;
+    });
+  }, [searchQuery, selectedCategory]);
+
+  if (!hasMounted) {
+    return (
+      <div
+        style={{
+          minHeight: "100vh",
+          backgroundColor: "var(--bg-main)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <div style={{ color: "var(--text-secondary)", fontSize: "0.9rem" }}>
+          Initializing Code Vault...
+        </div>
+      </div>
+    );
+  }
+
+  if (!isUnlocked) {
+    return <AccessGate onUnlock={handleUnlock} />;
+  }
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
+    <div className="dashboard unlock-anim">
+      <DashboardHeader onLock={handleLock} />
+
+      <DocumentsSection />
+
+      {selectedProgram && (
+        <CodeViewer
+          program={selectedProgram}
+          onClose={() => setSelectedProgram(null)}
         />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+      )}
+
+      <section aria-labelledby="programs-section-title">
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            marginBottom: "20px",
+            flexWrap: "wrap",
+            gap: "12px",
+          }}
+        >
+          <h2
+            id="programs-section-title"
+            className="section-title"
+            style={{ marginBottom: 0 }}
           >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+            <Code2 className="icon" size={24} aria-hidden="true" />
+            Shortened Programs (1–8)
+          </h2>
+          <span
+            style={{
+              fontSize: "0.85rem",
+              color: "var(--text-secondary)",
+              background: "var(--bg-card)",
+              padding: "6px 14px",
+              borderRadius: "8px",
+              border: "1px solid var(--border)",
+            }}
           >
-            Documentation
-          </a>
+            Showing {filteredPrograms.length} of {programs.length} programs
+          </span>
         </div>
-      </main>
+
+        <SearchFilter
+          searchQuery={searchQuery}
+          onSearchChange={setSearchQuery}
+          selectedCategory={selectedCategory}
+          onCategoryChange={setSelectedCategory}
+          categories={categories}
+        />
+
+        <div className="program-grid" role="region" aria-label="Program list">
+          {filteredPrograms.length > 0 ? (
+            filteredPrograms.map((program) => (
+              <ProgramCard
+                key={program.id}
+                program={program}
+                onSelect={(prog) => setSelectedProgram(prog)}
+              />
+            ))
+          ) : (
+            <div className="empty-state">
+              <div className="empty-icon">
+                <SearchX size={32} />
+              </div>
+              <h3>No matching programs found</h3>
+              <p>
+                No programs matched &ldquo;{searchQuery}&rdquo; in category &ldquo;
+                {selectedCategory}&rdquo;. Try clearing your search or switching
+                filters.
+              </p>
+              <button
+                type="button"
+                className="filter-tag"
+                style={{ marginTop: "16px", display: "inline-block" }}
+                onClick={() => {
+                  setSearchQuery("");
+                  setSelectedCategory("All Programs");
+                }}
+              >
+                Reset Filters
+              </button>
+            </div>
+          )}
+        </div>
+      </section>
+
+      <footer className="footer">
+        <p>
+          <strong>CODE VAULT</strong> — Personal College Practical Programs Library
+        </p>
+        <p style={{ marginTop: "6px", opacity: 0.8 }}>
+          Access Code: <code style={{ color: "var(--accent-secondary)" }}>456789</code> • Designed for rapid retrieval, study &amp; exams.
+        </p>
+      </footer>
     </div>
   );
 }
