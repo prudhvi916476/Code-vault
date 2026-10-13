@@ -970,3 +970,97 @@ pre,
     transform: translateX(-4px);
   }
 }
+
+/* Lab Tabs Switcher */
+.lab-tabs-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 28px;
+  flex-wrap: wrap;
+}
+
+.lab-tabs {
+  display: inline-flex;
+  gap: 8px;
+  background: var(--bg-card);
+  padding: 6px;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+}
+
+.lab-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 20px;
+  border-radius: 10px;
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  user-select: none;
+}
+
+.lab-tab:hover {
+  color: var(--text-main);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.lab-tab.active {
+  background: linear-gradient(
+    135deg,
+    rgba(var(--accent-primary-rgb), 0.22),
+    rgba(var(--accent-secondary-rgb), 0.15)
+  );
+  border-color: rgba(var(--accent-primary-rgb), 0.4);
+  color: #ffffff;
+  box-shadow: 0 4px 20px rgba(var(--accent-primary-rgb), 0.15);
+}
+
+.lab-tab .tab-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  height: 22px;
+  padding: 0 8px;
+  border-radius: 11px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-secondary);
+  transition: all 0.2s;
+}
+
+.lab-tab.active .tab-count {
+  background: var(--accent-primary);
+  color: #0b1020;
+}
+
+.open-window-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 16px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  border-radius: 10px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition: all 0.2s;
+  cursor: pointer;
+}
+
+.open-window-btn:hover {
+  color: var(--accent-secondary);
+  border-color: rgba(var(--accent-secondary-rgb), 0.4);
+  background: rgba(var(--accent-secondary-rgb), 0.08);
+}
+

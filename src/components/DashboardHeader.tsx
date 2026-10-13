@@ -1,15 +1,14 @@
 "use client";
 
-import { Lock, Code2, FileText, Layers } from "lucide-react";
+import { Lock, Code2, FileText, Image as ImageIcon } from "lucide-react";
 import { programs } from "../data/programs";
+import { dipPrograms } from "../data/dipPrograms";
 
 interface DashboardHeaderProps {
   onLock: () => void;
 }
 
 export default function DashboardHeader({ onLock }: DashboardHeaderProps) {
-  const uniqueCategories = new Set(programs.flatMap((p) => p.categories));
-
   return (
     <header className="header">
       <div className="header-top">
@@ -29,7 +28,7 @@ export default function DashboardHeader({ onLock }: DashboardHeaderProps) {
         </button>
       </div>
 
-      <h2>Your programs, in one place.</h2>
+      <h2>Your practical programs, in one place.</h2>
       <p className="sub">
         Search, explore, copy, and download your practical programs whenever you
         need them.
@@ -44,29 +43,29 @@ export default function DashboardHeader({ onLock }: DashboardHeaderProps) {
             <div className="stat-value">
               {String(programs.length).padStart(2, "0")}
             </div>
-            <div className="stat-label">Shortened Programs</div>
+            <div className="stat-label">ML &amp; NN Lab Programs</div>
           </div>
         </div>
 
         <div className="stat-card">
           <div className="stat-icon cyan">
-            <FileText size={22} />
+            <ImageIcon size={22} />
           </div>
           <div>
-            <div className="stat-value">02</div>
-            <div className="stat-label">Word Documents</div>
+            <div className="stat-value">
+              {String(dipPrograms.length).padStart(2, "0")}
+            </div>
+            <div className="stat-label">DIP Lab Programs</div>
           </div>
         </div>
 
         <div className="stat-card">
           <div className="stat-icon green">
-            <Layers size={22} />
+            <FileText size={22} />
           </div>
           <div>
-            <div className="stat-value">
-              {String(uniqueCategories.size).padStart(2, "0")}
-            </div>
-            <div className="stat-label">Categories</div>
+            <div className="stat-value">02</div>
+            <div className="stat-label">Word Documents</div>
           </div>
         </div>
       </div>

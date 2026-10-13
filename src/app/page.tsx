@@ -8,7 +8,10 @@ import SearchFilter from "../components/SearchFilter";
 import ProgramCard from "../components/ProgramCard";
 import CodeViewer from "../components/CodeViewer";
 import { programs, categories, Program } from "../data/programs";
-import { SearchX, Code2, ShieldCheck, Heart } from "lucide-react";
+import { dipPrograms, dipCategories } from "../data/dipPrograms";
+import { SearchX, Code2, Image as ImageIcon, ExternalLink } from "lucide-react";
+
+type LabTab = "mlnn" | "dip";
 
 export default function Home() {
   const [isUnlocked, setIsUnlocked] = useState(false);
@@ -16,6 +19,7 @@ export default function Home() {
   const [selectedProgram, setSelectedProgram] = useState<Program | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All Programs");
+  const [activeTab, setActiveTab] = useState<LabTab>("mlnn");
 
   useEffect(() => {
     setHasMounted(true);
@@ -35,8 +39,18 @@ export default function Home() {
     setSelectedProgram(null);
   };
 
+  const handleTabChange = (tab: LabTab) => {
+    setActiveTab(tab);
+    setSelectedProgram(null);
+    setSearchQuery("");
+    setSelectedCategory("All Programs");
+  };
+
+  const activePrograms = activeTab === "mlnn" ? programs : dipPrograms;
+  const activeCategories = activeTab === "mlnn" ? categories : dipCategories;
+
   const filteredPrograms = useMemo(() => {
-    return programs.filter((p) => {
+    return activePrograms.filter((p) => {
       const matchesCategory =
         selectedCategory === "All Programs" ||
         p.categories.includes(selectedCategory);
@@ -57,7 +71,7 @@ export default function Home() {
 
       return inTitle || inDesc || inFilename || inCode || inCategories || inNumber;
     });
-  }, [searchQuery, selectedCategory]);
+  }, [searchQuery, selectedCategory, activePrograms]);
 
   if (!hasMounted) {
     return (
@@ -87,6 +101,47 @@ export default function Home() {
 
       <DocumentsSection />
 
+      {/* Lab Tab Switcher */}
+      <div className="lab-tabs-container">
+        <div className="lab-tabs" role="tablist" aria-label="Lab sections">
+          <button
+            type="button"
+            role="tab"
+            className={`lab-tab ${activeTab === "mlnn" ? "active" : ""}`}
+            onClick={() => handleTabChange("mlnn")}
+            aria-selected={activeTab === "mlnn"}
+            aria-controls="mlnn-panel"
+          >
+            <Code2 size={18} />
+            <span className="tab-label">ML & NN Lab</span>
+            <span className="tab-count">{programs.length}</span>
+          </button>
+          <button
+            type="button"
+            role="tab"
+            className={`lab-tab ${activeTab === "dip" ? "active" : ""}`}
+            onClick={() => handleTabChange("dip")}
+            aria-selected={activeTab === "dip"}
+            aria-controls="dip-panel"
+          >
+            <ImageIcon size={18} />
+            <span className="tab-label">DIP Lab</span>
+            <span className="tab-count">{dipPrograms.length}</span>
+          </button>
+        </div>
+
+        <a
+          href="/dip"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="open-window-btn"
+          title="Open DIP Lab in a separate dedicated window"
+        >
+          <ExternalLink size={16} />
+          Open DIP in Dedicated Window
+        </a>
+      </div>
+
       {selectedProgram && (
         <CodeViewer
           program={selectedProgram}
@@ -94,7 +149,11 @@ export default function Home() {
         />
       )}
 
-      <section aria-labelledby="programs-section-title">
+      <section
+        id={activeTab === "mlnn" ? "mlnn-panel" : "dip-panel"}
+        role="tabpanel"
+        aria-labelledby="programs-section-title"
+      >
         <div
           style={{
             display: "flex",
@@ -110,8 +169,17 @@ export default function Home() {
             className="section-title"
             style={{ marginBottom: 0 }}
           >
-            <Code2 className="icon" size={24} aria-hidden="true" />
-            Shortened Programs (1–19)
+            {activeTab === "mlnn" ? (
+              <>
+                <Code2 className="icon" size={24} aria-hidden="true" />
+                ML & NN Programs (1–{programs.length})
+              </>
+            ) : (
+              <>
+                <ImageIcon className="icon" size={24} aria-hidden="true" />
+                DIP Lab Programs (1–{dipPrograms.length})
+              </>
+            )}
           </h2>
           <span
             style={{
@@ -123,7 +191,7 @@ export default function Home() {
               border: "1px solid var(--border)",
             }}
           >
-            Showing {filteredPrograms.length} of {programs.length} programs
+            Showing {filteredPrograms.length} of {activePrograms.length} programs
           </span>
         </div>
 
@@ -132,7 +200,7 @@ export default function Home() {
           onSearchChange={setSearchQuery}
           selectedCategory={selectedCategory}
           onCategoryChange={setSelectedCategory}
-          categories={categories}
+          categories={activeCategories}
         />
 
         <div className="program-grid" role="region" aria-label="Program list">
