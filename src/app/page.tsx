@@ -111,7 +111,7 @@ export default function Home() {
             style={{ marginBottom: 0 }}
           >
             <Code2 className="icon" size={24} aria-hidden="true" />
-            Shortened Programs (1–8)
+            Shortened Programs (1–19)
           </h2>
           <span
             style={{
